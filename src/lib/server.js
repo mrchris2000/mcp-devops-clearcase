@@ -136,6 +136,27 @@ server.tool(
     }
 );
 
+// Tool to get resource history
+server.tool(
+    "resource_history",
+    "Detail the history of a resource",
+    {
+        resourcePaths: z.array(z.string()).describe("List of resource paths to get history for")
+    },
+    async ({ resourcePaths }) => {
+        try {
+            const results = await Promise.all(
+                resourcePaths.map((path) =>
+                    executeClearToolCommand("cleartool", ["lsh", path])
+                )
+            );
+            return { content: [{ type: 'text', text: `Resource history:\n${results.join("\n")}` }] };
+        } catch (error) {
+            return { content: [{ type: 'text', text: `Error retrieving resource history: ${error.message}` }] };
+        }
+    }
+);
+
 // Tool to undo checkout
 server.tool(
     "undo_checkout",
