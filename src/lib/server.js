@@ -123,9 +123,10 @@ server.tool(
     },
     async ({ resourcePaths, comment }) => {
         try {
+            const commentArg = comment ? comment.replace(/"/g, '\\"') : "automated checkout";
             const results = await Promise.all(
                 resourcePaths.map((path) =>
-                    executeClearToolCommand("cleartool", ["checkout", "-c", comment || "", path])
+                    executeClearToolCommand("cleartool", ["checkout", "-c", commentArg, path])
                 )
             );
             return { content: [{ type: 'text', text: `Checkout results:\n${results.join("\n")}` }] };
@@ -168,9 +169,16 @@ server.tool(
     },
     async ({ resourcePaths, comment, checkinIdentical }) => {
         try {
+            const commentArg = comment ? comment.replace(/"/g, '\\"') : "automated checkin";
+            const args = ["checkin"];
+            if (checkinIdentical) {
+                args.push("-identical");
+            }
+            args.push("-c", commentArg);
+            
             const results = await Promise.all(
                 resourcePaths.map((path) =>
-                    executeClearToolCommand("cleartool", ["checkin", checkinIdentical ? "-identical" : "", "-c", comment || "", path])
+                    executeClearToolCommand("cleartool", [...args, path])
                 )
             );
             return { content: [{ type: 'text', text: `Check-in results:\n${results.join("\n")}` }] };
@@ -258,9 +266,10 @@ server.tool(
     },
     async ({ resourcePaths, comment }) => {
         try {
+            const commentArg = comment ? comment.replace(/"/g, '\\"') : "automated add";
             const results = await Promise.all(
                 resourcePaths.map((path) =>
-                    executeClearToolCommand("cleartool", ["mkelem", "-c", comment || "", path])
+                    executeClearToolCommand("cleartool", ["mkelem", "-c", commentArg, path])
                 )
             );
             return { content: [{ type: 'text', text: `Add results:\n${results.join("\n")}` }] };
